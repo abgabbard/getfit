@@ -1,26 +1,23 @@
-const router = require("express").Router();
-const Workouts = require("../models/workouts.js");
+const express = require("express");
+const mongoose = require("mongoose");
 
-router.post("/api/workouts", ({ body }, res) => {
-  Workouts.create(body)
-    .then(dbWorkouts => {
-      res.json(dbWorkouts);
-    })
-    .catch(err => {
-      res.status(400).json(err);
-    });
+const PORT = process.env.PORT || 3000;
+
+const app = express();
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+app.use(express.static("public"));
+
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/getfit", {
+  useNewUrlParser: true,
+  useFindAndModify: false
 });
 
+// routes
+app.use(require("./routes/api.js"));
 
-router.get("/api/workouts", (req, res) => {
-  Workouts.find({})
-    .sort({ date: -1 })
-    .then(dbWorkouts => {
-      res.json(dbWorkouts);
-    })
-    .catch(err => {
-      res.status(400).json(err);
-    });
+app.listen(PORT, () => {
+  console.log(`App running on port ${PORT}!`);
 });
-
-module.exports = router;
